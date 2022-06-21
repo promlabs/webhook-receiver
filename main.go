@@ -13,6 +13,7 @@ func main() {
 	listenAddr := flag.String("listen-address", ":12345", "The address to listen on for incoming webhook requests.")
 	flag.Parse()
 
+	log.Printf("Starting up on %s to listen for incoming webhook messages...", *listenAddr)
 	log.Fatal(http.ListenAndServe(*listenAddr, http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		buf, err := io.ReadAll(req.Body)
 		if err != nil {
