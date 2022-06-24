@@ -1,12 +1,14 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
+
+	"github.com/prometheus/alertmanager/notify/webhook"
 )
 
 func main() {
@@ -21,11 +23,14 @@ func main() {
 		}
 		defer req.Body.Close()
 
-		var body bytes.Buffer
-
-		if err := json.Indent(&body, buf, " >", "  "); err != nil {
+		message := &webhook.Message{}
+		if err := json.Unmarshal(buf, message); err != nil {
 			panic(err)
 		}
-		log.Println(body.String())
+
+		fmt.Printf("Received %d alert(s) for group key %v:\n", len(message.Alerts), message.GroupKey)
+		for i, alert := range message.Alerts {
+			fmt.Printf("\t%d. %s: %v\n", i+1, alert.Status, alert.Labels)
+		}
 	})))
 }
